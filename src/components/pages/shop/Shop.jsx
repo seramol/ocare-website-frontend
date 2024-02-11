@@ -24,17 +24,24 @@ export const Shop = () => {
         `http://localhost:3200/api/shop-details?id=${shopId}`
       );
       if (response && response.data) {
-        console.log("response ", response.data);
         setShopDetails(response.data);
         if (!response.data.products || !response.data.products.length) {
           const details = {};
           PRODUCTS.forEach(
-            (item) => (details[item.id] = { status: true, stock: 0 })
+            (item) => (details[item.id] = { status: false, stock: 0 })
           );
 
           setProducts(details);
         } else {
-          setProducts(response.data.products);
+          const details = {};
+          response.data.products.forEach(
+            (item) =>
+              (details[item.product_id] = {
+                status: item.status ? true : false,
+                stock: item.quantity,
+              })
+          );
+          setProducts(details);
         }
         setIsLoadingData(false);
       }
@@ -48,8 +55,6 @@ export const Shop = () => {
   }, []);
 
   const handleUpdate = async (event) => {
-    console.log("Product ", products);
-
     event.preventDefault();
 
     const payload = {
@@ -64,7 +69,6 @@ export const Shop = () => {
         payload
       );
       if (response && response.data) {
-        console.log("response ", response.data);
         setIsLoadingData(false);
       } else {
         setError("update error");
@@ -88,8 +92,7 @@ export const Shop = () => {
   if (!shopDetails) {
     return <ActivityOverlay />;
   }
-  // console.log("shopDetails ", shopDetails);
-  // console.log("products ", products);
+
   return (
     <Box
       sx={{

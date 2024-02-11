@@ -25,7 +25,6 @@ export const FindShops = () => {
       );
       if (response && response.data) {
         setShops(response.data);
-        console.log("response ", response.data);
         setIsLoadingData(false);
       }
     } catch {}

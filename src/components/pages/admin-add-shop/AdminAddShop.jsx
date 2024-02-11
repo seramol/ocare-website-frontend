@@ -54,7 +54,6 @@ export const AdminAddShop = () => {
         setEmail("");
         setAddress("");
 
-        console.log("response ", response.data);
         setIsLoadingData(false);
       } else {
         setError(

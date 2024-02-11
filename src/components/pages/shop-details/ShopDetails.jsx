@@ -20,7 +20,6 @@ export const ShopDetails = () => {
         `http://localhost:3200/api/shop-details?id=${shopId}`
       );
       if (response && response.data) {
-        console.log("response ", response.data);
         setShopDetails(response.data);
         setIsLoadingData(false);
       }
@@ -29,7 +28,6 @@ export const ShopDetails = () => {
   React.useEffect(() => {
     const shopId = new URLSearchParams(location.search).get("id");
     getShopDetails(shopId);
-    console.log("ShopeId", shopId);
   }, []);
 
   if (isLoadingdata) {

@@ -31,7 +31,6 @@ export const ShopLogin = () => {
         payload
       );
       if (response && response.data) {
-        console.log("response ", response.data);
         setIsLoadingData(false);
         navigate("/shop", { state: { id: response.data.id } });
       } else {
