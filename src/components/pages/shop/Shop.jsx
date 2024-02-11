@@ -7,15 +7,15 @@ import { Product } from "./components/Product";
 import { Typography } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { PRODUCTS } from "../../../utils/constants";
 import { ActivityOverlay } from "../../common/activity-overlay/ActivityOverlay";
 export const Shop = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const [products, setProducts] = React.useState([1, 2, 3, 4, 5]);
-  const [shopDetails, setShopDetails] = React.useState({});
+  const [products, setProducts] = React.useState({});
+  const [shopDetails, setShopDetails] = React.useState(null);
   const [isLoadingdata, setIsLoadingData] = React.useState(false);
-
-  console.log(" state ", state);
+  const [error, setError] = React.useState("");
 
   const getShopDetails = async (shopId) => {
     setIsLoadingData(true);
@@ -26,6 +26,16 @@ export const Shop = () => {
       if (response && response.data) {
         console.log("response ", response.data);
         setShopDetails(response.data);
+        if (!response.data.products || !response.data.products.length) {
+          const details = {};
+          PRODUCTS.forEach(
+            (item) => (details[item.id] = { status: true, stock: 0 })
+          );
+
+          setProducts(details);
+        } else {
+          setProducts(response.data.products);
+        }
         setIsLoadingData(false);
       }
     } catch {}
@@ -37,25 +47,49 @@ export const Shop = () => {
     }
   }, []);
 
-  React.useEffect(() => {
-    const details = {};
-    products.forEach((item) => (details[item] = { status: true, stock: 0 }));
-    setShopDetails(details);
-  }, [products]);
+  const handleUpdate = async (event) => {
+    console.log("Product ", products);
+
+    event.preventDefault();
+
+    const payload = {
+      shopId: state.id,
+      products: products,
+    };
+
+    setIsLoadingData(true);
+    try {
+      const response = await axios.post(
+        `http://localhost:3200/api/shop/update`,
+        payload
+      );
+      if (response && response.data) {
+        console.log("response ", response.data);
+        setIsLoadingData(false);
+      } else {
+        setError("update error");
+      }
+    } catch {}
+  };
 
   const handleProductStatusChange = (productId, status) => {
-    const details = { ...shopDetails };
+    const details = { ...products };
     details[productId].status = status;
-    setShopDetails(details);
+    setProducts(details);
   };
   const handleProductQuantityChange = (productId, quantity) => {
-    const details = { ...shopDetails };
+    const details = { ...products };
     details[productId].stock = quantity;
-    setShopDetails(details);
+    setProducts(details);
   };
   if (!state || !state.id) {
     navigate("/shop-login");
   }
+  if (!shopDetails) {
+    return <ActivityOverlay />;
+  }
+  // console.log("shopDetails ", shopDetails);
+  // console.log("products ", products);
   return (
     <Box
       sx={{
@@ -77,30 +111,29 @@ export const Shop = () => {
       </Typography>
       <Box sx={{ marginTop: "20px" }}>
         <Grid container spacing={2}>
-          {shopDetails &&
-            shopDetails.products &&
-            shopDetails.products.map((item) => (
-              <Grid item xs={4} key={item}>
-                <Product
-                  productId={1}
-                  productStatus={true}
-                  name={"Test Product"}
-                  quantity="10"
-                  onProductStatusChange={handleProductStatusChange}
-                  onProductQuantityChange={handleProductQuantityChange}
-                />
-              </Grid>
-            ))}
+          {PRODUCTS.map((item) => (
+            <Grid item xs={4} key={item.id}>
+              <Product
+                productId={item.id}
+                productStatus={products[item.id].status}
+                name={item.name}
+                quantity={products[item.id].stock}
+                onProductStatusChange={handleProductStatusChange}
+                onProductQuantityChange={handleProductQuantityChange}
+              />
+            </Grid>
+          ))}
         </Grid>
       </Box>
-
+      {error && <Typography sx={{ color: "red" }}>{error}</Typography>}
       <Button
         sx={{ marginLeft: "20px", marginTop: "50px" }}
         variant="contained"
+        onClick={handleUpdate}
       >
         Update
       </Button>
-      {isLoadingdata && <ActivityOverlay />}
+      {/* {isLoadingdata && <ActivityOverlay />} */}
     </Box>
   );
 };

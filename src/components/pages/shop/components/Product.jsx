@@ -24,7 +24,12 @@ export const Product = ({
 
   const handleChange = (event) => {
     setChecked(event.target.checked);
+
     onProductStatusChange(productId, event.target.checked);
+    if (!event.target.checked) {
+      setProductQuantity(0);
+      onProductQuantityChange(productId, 0);
+    }
   };
   return (
     <Box
@@ -56,6 +61,7 @@ export const Product = ({
             type="number"
             name="shop-number"
             id="shop-number"
+            disabled={!checked}
             value={productQuantity}
             onChange={(event) => {
               setProductQuantity(event.target.value);
