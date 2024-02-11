@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -6,13 +7,29 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
+import { ActivityOverlay } from "../../common/activity-overlay/ActivityOverlay";
 import { LOCATIONS, PRODUCTS } from "../../../utils/constants";
 import { Shop } from "./components/Shope";
 
 export const FindShops = () => {
   const [location, setLocation] = React.useState("");
   const [product, setProduct] = React.useState("");
-  const [shops, setShops] = React.useState([1, 2, 3, 4, 5, 6, 7, 8]);
+  const [isLoadingdata, setIsLoadingData] = React.useState(false);
+  const [shops, setShops] = React.useState([]);
+
+  const handleSearch = async () => {
+    setIsLoadingData(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:3200/api/shops?location=${location}&product=${product}`
+      );
+      if (response && response.data) {
+        setShops(response.data);
+        console.log("response ", response.data);
+        setIsLoadingData(false);
+      }
+    } catch {}
+  };
 
   const handleLocationChange = (event) => {
     setLocation(event.target.value);
@@ -49,7 +66,7 @@ export const FindShops = () => {
           >
             {LOCATIONS.map((item) => (
               <MenuItem value={item.id} key={item.id}>
-                {item.title}
+                {item.name}
               </MenuItem>
             ))}
           </Select>
@@ -66,7 +83,7 @@ export const FindShops = () => {
           >
             {PRODUCTS.map((item) => (
               <MenuItem value={item.id} key={item.id}>
-                {item.title}
+                {item.name}
               </MenuItem>
             ))}
           </Select>
@@ -75,6 +92,7 @@ export const FindShops = () => {
           sx={{ marginLeft: "20px" }}
           variant="contained"
           disabled={!location || !product}
+          onClick={handleSearch}
         >
           Search
         </Button>
@@ -84,17 +102,18 @@ export const FindShops = () => {
           {shops.map((item) => (
             <Grid item xs={4} key={item}>
               <Shop
-                shopeId={1}
-                name={"Test Shopw"}
-                location="Test Location"
-                phoneNumber={"1234567890"}
-                address={"Sample Address"}
+                shopeId={item.id}
+                name={item.name}
+                location={item.location_name}
+                phoneNumber={item.phone}
+                address={item.address}
                 stockStatus={true}
               />
             </Grid>
           ))}
         </Grid>
       </Box>
+      {isLoadingdata && <ActivityOverlay />}
     </Box>
   );
 };

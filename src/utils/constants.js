@@ -1,8 +1,9 @@
-export const LOCATIONS = [
-  { id: "thrissur", title: "Thrissur" },
-  { id: "chalakudy", title: "Chalakudy" },
-];
-export const PRODUCTS = [
-  { id: "oxygen_cylinder", title: "Oxygen Cylinder" },
-  { id: "water_bed", title: "Water Bed" },
-];
+export let LOCATIONS = [];
+export let PRODUCTS = [];
+
+export const setLocations = (data) => {
+  LOCATIONS = data;
+};
+export const setProducts = (data) => {
+  PRODUCTS = data;
+};

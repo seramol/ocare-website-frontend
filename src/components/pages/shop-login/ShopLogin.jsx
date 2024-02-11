@@ -1,4 +1,6 @@
 import * as React from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -7,15 +9,35 @@ import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
+import { ActivityOverlay } from "../../common/activity-overlay/ActivityOverlay";
 
 export const ShopLogin = () => {
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+  const [isLoadingdata, setIsLoadingData] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const handleSubmit = async (event) => {
+    setError("");
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+    const payload = {
       email: data.get("email"),
       password: data.get("password"),
-    });
+    };
+
+    setIsLoadingData(true);
+    try {
+      const response = await axios.post(
+        `http://localhost:3200/api/shop/login`,
+        payload
+      );
+      if (response && response.data) {
+        console.log("response ", response.data);
+        setIsLoadingData(false);
+        navigate("/shop", { state: { id: response.data.id } });
+      } else {
+        setError("invalid email or password");
+      }
+    } catch {}
   };
 
   return (
@@ -56,7 +78,7 @@ export const ShopLogin = () => {
             id="password"
             autoComplete="current-password"
           />
-
+          {error && <Typography sx={{ color: "red" }}>{error}</Typography>}
           <Button
             type="submit"
             fullWidth
@@ -67,6 +89,7 @@ export const ShopLogin = () => {
           </Button>
         </Box>
       </Box>
+      {isLoadingdata && <ActivityOverlay />}
     </Container>
   );
 };
