@@ -1,6 +1,7 @@
 import { Typography, Box } from "@mui/material";
+import { PRODUCT_IMAGES } from "../../../../utils/productImages";
 
-export const Product = ({ name, quantity, stockStatus }) => {
+export const Product = ({ name, quantity, productId }) => {
   return (
     <Box
       sx={{
@@ -9,9 +10,15 @@ export const Product = ({ name, quantity, stockStatus }) => {
         padding: "10px",
       }}
     >
+      <img
+        src={PRODUCT_IMAGES[productId] || PRODUCT_IMAGES.placeholder}
+        alt="app-logo"
+        height="130px"
+        width="130px"
+      />
       <Typography>{name}</Typography>
       <Typography>Quantity: {quantity}</Typography>
-      <Typography>Stock:{stockStatus ? "Avialable" : "Outof stock"}</Typography>
+      <Typography>Stock:{quantity ? "Avialable" : "Outof stock"}</Typography>
     </Box>
   );
 };

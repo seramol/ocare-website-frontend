@@ -99,7 +99,7 @@ export const FindShops = () => {
       <Box sx={{ padding: "50px" }}>
         <Grid container spacing={2}>
           {shops.map((item) => (
-            <Grid item xs={4} key={item}>
+            <Grid item xs={4} key={item.id}>
               <Shop
                 shopeId={item.id}
                 name={item.name}

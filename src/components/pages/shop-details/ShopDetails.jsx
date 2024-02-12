@@ -5,8 +5,8 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { Typography } from "@mui/material";
 import { ActivityOverlay } from "../../common/activity-overlay/ActivityOverlay";
-
 import { Product } from "./components/Product";
+import { PRODUCTS } from "../../../utils/constants";
 
 export const ShopDetails = () => {
   const location = useLocation();
@@ -20,7 +20,25 @@ export const ShopDetails = () => {
         `http://localhost:3200/api/shop-details?id=${shopId}`
       );
       if (response && response.data) {
-        setShopDetails(response.data);
+        let proudcts = [];
+        if (response.data.products) {
+          const activeProducts = response.data.products.filter(
+            (item) => item.status
+          );
+          proudcts = activeProducts.map((item) => {
+            let productName = "";
+            const pds = PRODUCTS.filter((pd) => pd.id === item.product_id);
+            if (pds && pds.length) {
+              productName = pds[0].name;
+            }
+            return {
+              ...item,
+              productName: productName,
+            };
+          });
+        }
+        const data = { ...response.data };
+        setShopDetails({ ...data, products: proudcts });
         setIsLoadingData(false);
       }
     } catch {}
@@ -33,6 +51,7 @@ export const ShopDetails = () => {
   if (isLoadingdata) {
     return <ActivityOverlay />;
   }
+
   return (
     <Box
       sx={{
@@ -57,11 +76,11 @@ export const ShopDetails = () => {
           {shopDetails &&
             shopDetails.products &&
             shopDetails.products.map((item) => (
-              <Grid item xs={4} key={item}>
+              <Grid item xs={4} key={item.product_id}>
                 <Product
-                  name={"Test Product"}
-                  quantity="10"
-                  stockStatus={true}
+                  productId={item.product_id}
+                  name={item.productName}
+                  quantity={item.quantity}
                 />
               </Grid>
             ))}
